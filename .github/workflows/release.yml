@@ -1,9 +1,10 @@
 name: Build & Release
 
+# 手动触发（GitHub Actions 页面 → Run workflow）。
+# 默认发布流程是本地 `make release TAG=vX.Y.Z`（见 README）；
+# 本工作流作为可选替代：不想占用本地带宽时，在 Actions 里手动运行，
+# 会自动把构建产物上传到同名 Release。
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
 
 permissions:

@@ -25,5 +25,8 @@ deepseek-harness-master/
 # Generated icon rasters (regenerate with scripts/make-icon.js)
 app-icon/*.png
 
+# Generated release notes (regenerate with make notes)
+RELEASE_NOTES.md
+
 # macOS
 .DS_Store

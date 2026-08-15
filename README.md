@@ -44,42 +44,36 @@ DeepSeek Harness.app/
 2. 从子进程 stdout 解析 `dsh web: http://127.0.0.1:<port>`，等待端口就绪后创建窗口。
 3. 退出（关窗 / Cmd+Q / SIGTERM）→ 杀掉服务端子进程，不留孤儿进程。
 
-## 从源码构建
+## 构建与发布（Makefile）
 
-前置（仅构建机需要）：Rust（≥1.85）、Xcode Command Line Tools、Node.js（≥20）。
-
-```sh
-# 1. 准备捆绑运行时（下载 Node + 安装 @deepseek-ai/dsh，约 350MB）
-./scripts/prepare-runtime.sh
-
-# 2. 编译 release 二进制（首次拉取全部 crates，约 15 分钟）
-cd app/src-tauri && cargo build --release && cd ..
-
-# 3. 打包 .app（ad-hoc 签名）与 .dmg
-./scripts/bundle-app.sh --dmg
-
-# 产物在 dist/
-```
-
-## 发布（GitHub Releases）
-
-打 tag 即触发 CI（`.github/workflows/release.yml`）在 macOS arm64 运行器上
-构建并自动上传 `.dmg` 与 `.zip` 到 Release：
+前置（仅构建机需要）：Rust（≥1.85）、Xcode Command Line Tools、Node.js（≥20）、
+[GitHub CLI](https://cli.github.com)（已登录）。
 
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+make                      # 构建并打包 .app 与 .dmg
+make zip                  # 追加生成 .zip 与 SHA256SUMS
+make notes TAG=v0.2.0     # 依据 git 历史自动生成 RELEASE_NOTES.md
+make release TAG=v0.2.0   # 一条命令：构建 → 打包 → Notes → 发布 GitHub Release
 ```
 
-也可以本地构建后手动发布：
+`make release` 会自动：
 
-```sh
-gh release create v0.1.0 "dist/DeepSeek Harness.dmg" dist/DeepSeek-Harness-macos-arm64.zip --title "v0.1.0" --notes "…"
-```
+1. 依次执行 prepare → build → bundle(--dmg) → zip/checksums；
+2. `scripts/release-notes.sh` 用 git 历史生成 Release Notes
+   （变更范围 = 自上一个 tag 以来的全部提交，附产物大小与校验和）；
+3. `scripts/publish.sh` 创建/更新 tag `v0.2.0` 并推送，然后
+   `gh release create|upload` 上传 `.dmg`、`.zip`、`SHA256SUMS` 并附上 Notes。
+
+发布纪律：工作区有未提交改动时会拒绝发布（tag 必须包含最新源码）。
+`make help` 查看全部目标。
+
+> 可选：GitHub Actions（`.github/workflows/release.yml`，手动触发）可在官方
+> arm64 运行器上构建并上传到同名 Release——不想占用本地带宽时使用。
 
 ## 仓库结构
 
 ```
+├── Makefile                    # 打包/发布工作流（make release TAG=vX.Y.Z）
 ├── app/                        # Tauri 桌面工程（pake 模板 + 定制）
 │   ├── dist/                   # frontendDist 占位
 │   └── src-tauri/
@@ -89,9 +83,11 @@ gh release create v0.1.0 "dist/DeepSeek Harness.dmg" dist/DeepSeek-Harness-macos
 │       ├── tauri.conf.json     # 应用/bundle 配置
 │       └── resources/runtime/  # 构建时由 prepare-runtime.sh 生成（不入库）
 ├── scripts/
-│   ├── prepare-runtime.sh      # 组装捆绑运行时
+│   ├── prepare-runtime.sh      # 组装捆绑运行时（幂等，FORCE=1 强制重建）
 │   ├── bundle-app.sh           # 打包 .app/.dmg（ad-hoc 签名）
 │   ├── test-app.sh             # 端到端冒烟测试
+│   ├── release-notes.sh        # 依据 git 历史生成 Release Notes
+│   ├── publish.sh              # 发布产物到 GitHub Release
 │   └── make-icon.js            # 由 favicon.svg 生成应用图标
 ├── app-icon/                   # 图标源文件（favicon.svg）
 ├── .github/workflows/release.yml
