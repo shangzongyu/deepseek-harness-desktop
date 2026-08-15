@@ -1,0 +1,29 @@
+# Build output (the packaged app/dmg go to Releases, not the repo)
+dist/
+
+# Rust build artifacts
+app/src-tauri/target/
+app/src-tauri/gen/
+
+# Bundled runtime — assembled by scripts/prepare-runtime.sh (Node + @deepseek-ai/dsh)
+app/src-tauri/resources/runtime/
+
+# Local build caches
+.cargo-home/
+.npm-cache/
+
+# Local test harness home (scripts/test-app.sh)
+.dsh-test-home/
+
+# Node
+node_modules/
+
+# Reference checkouts used during development (not part of this project)
+pake/
+deepseek-harness-master/
+
+# Generated icon rasters (regenerate with scripts/make-icon.js)
+app-icon/*.png
+
+# macOS
+.DS_Store

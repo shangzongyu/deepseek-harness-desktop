@@ -1,0 +1,44 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS (arm64)
+    runs-on: macos-14 # Apple Silicon (arm64) hosted runner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Prepare bundled runtime (Node.js + @deepseek-ai/dsh)
+        run: ./scripts/prepare-runtime.sh
+
+      - name: Build release binary
+        run: |
+          cd app/src-tauri
+          cargo build --release
+
+      - name: Bundle .app and .dmg
+        run: ./scripts/bundle-app.sh --dmg
+
+      - name: Zip the .app (for direct download)
+        run: |
+          cd dist
+          ditto -c -k --sequesterRsrc --keepParent "DeepSeek Harness.app" "DeepSeek-Harness-macos-arm64.zip"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/DeepSeek Harness.dmg
+            dist/DeepSeek-Harness-macos-arm64.zip
