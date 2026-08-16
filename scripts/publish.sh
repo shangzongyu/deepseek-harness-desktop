@@ -25,7 +25,7 @@ SUMS="dist/SHA256SUMS"
 NOTES="RELEASE_NOTES.md"
 
 for f in "$DMG" "$ZIP" "$SUMS" "$NOTES"; do
-  [[ -f "$f" ]] || { echo "error: 缺少 $f（先运行 make zip / make notes）" >&2; exit 1; }
+  [[ -f "$f" ]] || { echo "error: 缺少 ${f}（先运行 make zip / make notes）" >&2; exit 1; }
 done
 
 # 发布纪律：源码必须先提交，否则 tag 不会包含未提交的改动

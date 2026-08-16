@@ -27,7 +27,7 @@ echo "==> preparing runtime: node $NODE_VERSION ($NODE_ARCH) + $DSH_PACKAGE"
 
 # 已准备好则跳过，避免每次构建都重新下载（FORCE=1 强制重建）
 if [[ "${FORCE:-0}" != "1" && -x "$RUNTIME/node" && -d "$RUNTIME/app/node_modules/@deepseek-ai/dsh" ]]; then
-  echo "==> runtime 已存在：$RUNTIME（FORCE=1 可强制重建）"
+  echo "==> runtime 已存在：${RUNTIME}（FORCE=1 可强制重建）"
   "$RUNTIME/node" --version
   exit 0
 fi
