@@ -18,7 +18,7 @@ TAG     ?=
 
 all: bundle
 
-prepare: ## 准备捆绑运行时（Node + @deepseek-ai/dsh；已存在则跳过，FORCE=1 强制重建）
+prepare: ## 准备捆绑运行时（Node + @deepseek-ai/dsh；dsh 每次取最新，FORCE=1 连 Node 一起重下）
 	@$(ROOT)/scripts/prepare-runtime.sh
 
 build: prepare ## 编译 release 二进制

@@ -83,7 +83,7 @@ make release TAG=v0.2.0   # 一条命令：构建 → 打包 → Notes → 发�
 │       ├── tauri.conf.json     # 应用/bundle 配置
 │       └── resources/runtime/  # 构建时由 prepare-runtime.sh 生成（不入库）
 ├── scripts/
-│   ├── prepare-runtime.sh      # 组装捆绑运行时（幂等，FORCE=1 强制重建）
+│   ├── prepare-runtime.sh      # 组装捆绑运行时（dsh 每次装最新，FORCE=1 连 Node 一起重下）
 │   ├── bundle-app.sh           # 打包 .app/.dmg（ad-hoc 签名）
 │   ├── test-app.sh             # 端到端冒烟测试
 │   ├── release-notes.sh        # 依据 git 历史生成 Release Notes
