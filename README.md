@@ -40,8 +40,11 @@ DeepSeek Harness.app/
 ```
 
 1. 启动 → Rust 侧 `app/src-tauri/src/app/sidecar.rs` 用绝对路径执行
-   `runtime/node .../dsh/lib/bin.js web --port 0`。
-2. 从子进程 stdout 解析 `dsh web: http://127.0.0.1:<port>`，等待端口就绪后创建窗口。
+   `runtime/node .../dsh/lib/bin.js web --port 0 --no-open`。
+2. 从子进程 stdout 解析 `dsh web: http://127.0.0.1:<port>/?token=...`，等待端口
+   就绪后创建窗口。dsh ≥ 0.1.5 的 `?token=` 是浏览器信任握手：服务端回 303 +
+   HttpOnly cookie，因此窗口必须原样加载带 token 的 URL；`--no-open` 阻止服务端
+   再把界面递给系统默认浏览器。
 3. 退出（关窗 / Cmd+Q / SIGTERM）→ 杀掉服务端子进程，不留孤儿进程。
 
 ## 构建与发布（Makefile）

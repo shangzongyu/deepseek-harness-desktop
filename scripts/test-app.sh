@@ -13,6 +13,7 @@ APP="$ROOT/dist/DeepSeek Harness.app"
 BIN="$APP/Contents/MacOS/pake"
 TEST_HOME="$ROOT/.dsh-test-home"
 LOG="$ROOT/.dsh-test-home/server.out.log"
+JAR="$ROOT/.dsh-test-home/cookies.txt"
 BUNDLE_ID="com.deepseek-harness.desktop"
 
 launch_and_wait() {
@@ -22,25 +23,37 @@ launch_and_wait() {
   DSH_HOME="$TEST_HOME" "$BIN" >"$LOG" 2>&1 &
   APP_PID=$!
   echo "    app pid: $APP_PID"
+  # dsh ≥ 0.1.5 announces the browser-trust URL (port + process token).
   for i in $(seq 1 60); do
-    URL=$(grep -oE "http://127\.0\.0\.1:[0-9]+" "$LOG" 2>/dev/null | head -1)
+    URL=$(grep -oE "http://127\.0\.0\.1:[0-9]+/\?token=[A-Za-z0-9_-]+" "$LOG" 2>/dev/null | head -1)
     [[ -n "$URL" ]] && break
     sleep 1
   done
   if [[ -z "$URL" ]]; then
-    echo "FAIL: no server URL in app output" >&2
+    echo "FAIL: no authenticated server URL in app output" >&2
     cat "$LOG" 2>/dev/null | head -20
     kill -9 "$APP_PID" 2>/dev/null
     exit 1
   fi
-  echo "    server URL: $URL"
-  CODE=$(curl -s -o "$ROOT/.dsh-test-home/index.html" -w "%{http_code}" --max-time 15 "$URL/")
+  echo "    server URL: ${URL%%\?token=*}/?token=<redacted>"
+  # The token URL must 303 into an auth cookie and only then render the GUI.
+  rm -f "$JAR"
+  CODE=$(curl -sL -c "$JAR" -b "$JAR" -o "$ROOT/.dsh-test-home/index.html" -w "%{http_code}" --max-time 15 "$URL")
   if [[ "$CODE" != "200" ]] || ! grep -q "__DSH_BOOT__" "$ROOT/.dsh-test-home/index.html"; then
     echo "FAIL: GUI did not answer 200 with __DSH_BOOT__ (HTTP $CODE)" >&2
     kill -9 "$APP_PID" 2>/dev/null
     exit 1
   fi
   echo "    GUI verified (HTTP 200, __DSH_BOOT__)"
+  # The token fence must still reject an unauthenticated request.
+  BARE=$(echo "$URL" | sed 's|/?token=.*||')
+  BARE_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$BARE/")
+  if [[ "$BARE_CODE" == "200" ]]; then
+    echo "FAIL: tokenless request was served (HTTP 200) — browser-trust fence off" >&2
+    kill -9 "$APP_PID" 2>/dev/null
+    exit 1
+  fi
+  echo "    token fence active (tokenless HTTP $BARE_CODE)"
   # The server must be the bundled node, not the system node.
   NODE_PID=$(pgrep -f "Contents/Resources/runtime/node" | head -1)
   if [[ -z "$NODE_PID" ]]; then

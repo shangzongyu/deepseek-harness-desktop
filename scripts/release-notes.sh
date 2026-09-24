@@ -36,6 +36,12 @@ DMG="dist/$APP_NAME.dmg"
 ZIP="dist/DeepSeek-Harness-macos-arm64.zip"
 SUMS="dist/SHA256SUMS"
 
+# 本次捆绑进 .app 的 @deepseek-ai/dsh 版本（make prepare 决定）
+DSH_PKG_JSON="app/src-tauri/resources/runtime/app/node_modules/@deepseek-ai/dsh/package.json"
+DSH_VER="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$DSH_PKG_JSON" 2>/dev/null | head -1)"
+DSH_VER="${DSH_VER:-未知（先运行 make prepare）}"
+NODE_VER="$("$ROOT/app/src-tauri/resources/runtime/node" --version 2>/dev/null || echo 未知)"
+
 fmt_size() {
   if [[ -f "$1" ]]; then du -h "$1" | cut -f1; else echo "未生成"; fi
 }
@@ -44,6 +50,8 @@ fmt_size() {
   echo "# $TAG"
   echo
   echo "> 构建日期：$DATE · 平台：macOS 14+（Apple Silicon）· 无需安装 Node"
+  echo ">"
+  echo "> 内置 \`@deepseek-ai/dsh\`：**$DSH_VER** · 内置 Node.js：$NODE_VER"
   echo
   echo "$HEADER"
   echo

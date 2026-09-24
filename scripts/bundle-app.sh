@@ -16,7 +16,10 @@ APP_NAME="DeepSeek Harness"
 APP="$ROOT/dist/$APP_NAME.app"
 DMG="$ROOT/dist/$APP_NAME.dmg"
 IDENTIFIER="com.deepseek-harness.desktop"
-VERSION="0.1.0"
+# Single source of truth for the app version: tauri.conf.json (also read by the
+# cargo build). APP_VERSION overrides it for one-off builds.
+VERSION="${APP_VERSION:-$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$SRC_TAURI/tauri.conf.json" | head -1)}"
+VERSION="${VERSION:-0.0.0}"
 EXEC="pake"
 
 if [[ ! -x "$BIN" ]]; then
@@ -90,7 +93,7 @@ codesign --verify --verbose=2 "$APP" 2>&1 || true
 codesign -dv "$APP" 2>&1 | head -5 || true
 
 echo
-echo "==> bundle created: $APP"
+echo "==> bundle created: $APP (version $VERSION)"
 du -sh "$APP"
 
 # --- Optional DMG -----------------------------------------------------------

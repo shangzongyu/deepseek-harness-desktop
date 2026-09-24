@@ -2,10 +2,18 @@
 //!
 //! The app ships a self-contained Node.js runtime plus the `@deepseek-ai/dsh`
 //! npm install under `<Resources>/runtime`. On startup we launch
-//! `node .../dsh/lib/bin.js web --port 0`, read the announced URL from stdout
-//! (`dsh web: http://127.0.0.1:<port>`), and hand it to the window. `--port 0`
-//! lets the OS pick a free port so the desktop app never collides with a
-//! browser instance already serving on 3080.
+//! `node .../dsh/lib/bin.js web --port 0 --no-open`, read the announced URL
+//! from stdout (`dsh web: http://127.0.0.1:<port>/?token=...`), and hand it to
+//! the window.
+//!
+//! * `--port 0` lets the OS pick a free port so the desktop app never collides
+//!   with a browser instance already serving on 3080.
+//! * `--no-open` keeps dsh ≥ 0.1.5 from also handing the UI to the default
+//!   browser; the window below is the only surface we want. Older releases
+//!   ignore the flag (they forward unknown `web` flags to the web app).
+//! * The `?token=` query is the browser-trust handshake introduced in dsh
+//!   0.1.5: the server answers it with a 303 to `/` plus an HttpOnly auth
+//!   cookie, so loading the announced URL verbatim authenticates the webview.
 
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
@@ -100,8 +108,9 @@ fn runtime_dir(app: &AppHandle) -> PathBuf {
         .join("runtime")
 }
 
-/// Pull `http://127.0.0.1:<port>` out of a stdout line like
-/// `dsh web: http://127.0.0.1:52647`.
+/// Pull the local URL out of a stdout line like
+/// `dsh web: http://127.0.0.1:52647/?token=... (LAN: ...)`. The query string
+/// (the 0.1.5+ process token) is kept — it is what authenticates the webview.
 fn extract_url(line: &str) -> Option<String> {
     let line = line.trim();
     let start = line.find("http://")?;
@@ -156,6 +165,8 @@ pub fn start(app: &AppHandle) -> Option<(Child, String)> {
         .arg("web")
         .arg("--port")
         .arg("0")
+        // dsh ≥ 0.1.5 otherwise opens the Web UI in the default browser too.
+        .arg("--no-open")
         .current_dir(&home)
         .stdout(Stdio::piped())
         .stderr(match &log_file {

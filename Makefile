@@ -13,6 +13,8 @@ ROOT    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 APP     := DeepSeek Harness
 DIST    := $(ROOT)/dist
 TAG     ?=
+# 仓库内 CARGO_HOME（若存在则优先使用，避免依赖 ~/.cargo 的可写性）
+CARGO_ENV := $(if $(wildcard $(ROOT)/.cargo-home),CARGO_HOME=$(ROOT)/.cargo-home,)
 
 .PHONY: all prepare build bundle zip checksums notes release publish clean help
 
@@ -22,7 +24,7 @@ prepare: ## 准备捆绑运行时（Node + @deepseek-ai/dsh；dsh 每次取最�
 	@$(ROOT)/scripts/prepare-runtime.sh
 
 build: prepare ## 编译 release 二进制
-	@cd $(ROOT)/app/src-tauri && cargo build --release
+	@cd $(ROOT)/app/src-tauri && $(CARGO_ENV) cargo build --release
 
 bundle: build ## 打包 .app 与 .dmg（ad-hoc 签名）
 	@$(ROOT)/scripts/bundle-app.sh --dmg
