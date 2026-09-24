@@ -19,7 +19,7 @@ fi
 }
 
 APP_NAME="DeepSeek Harness"
-DMG="dist/$APP_NAME.dmg"
+DMG="dist/DeepSeek-Harness-macos-arm64.dmg"
 ZIP="dist/DeepSeek-Harness-macos-arm64.zip"
 SUMS="dist/SHA256SUMS"
 NOTES="RELEASE_NOTES.md"

@@ -32,7 +32,7 @@ fi
 COMMITS="$(git log --oneline --no-merges --format='- %s' "$RANGE" 2>/dev/null || true)"
 [[ -n "$COMMITS" ]] || COMMITS="- （无提交记录）"
 
-DMG="dist/$APP_NAME.dmg"
+DMG="dist/DeepSeek-Harness-macos-arm64.dmg"
 ZIP="dist/DeepSeek-Harness-macos-arm64.zip"
 SUMS="dist/SHA256SUMS"
 
@@ -61,7 +61,7 @@ fmt_size() {
   echo
   echo "| 文件 | 大小 | 说明 |"
   echo "|---|---|---|"
-  echo "| \`$APP_NAME.dmg\` | $(fmt_size "$DMG") | 安装镜像（挂载后拖入 Applications） |"
+  echo "| \`DeepSeek-Harness-macos-arm64.dmg\` | $(fmt_size "$DMG") | 安装镜像（挂载后拖入 Applications） |"
   echo "| \`DeepSeek-Harness-macos-arm64.zip\` | $(fmt_size "$ZIP") | 免安装压缩包（解压即用） |"
   echo
   echo "## 校验和"

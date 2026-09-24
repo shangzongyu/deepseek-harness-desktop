@@ -41,5 +41,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/DeepSeek Harness.dmg
+            dist/DeepSeek-Harness-macos-arm64.dmg
             dist/DeepSeek-Harness-macos-arm64.zip

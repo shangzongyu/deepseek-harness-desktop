@@ -14,7 +14,9 @@ SRC_TAURI="$ROOT/app/src-tauri"
 BIN="$SRC_TAURI/target/release/pake"
 APP_NAME="DeepSeek Harness"
 APP="$ROOT/dist/$APP_NAME.app"
-DMG="$ROOT/dist/$APP_NAME.dmg"
+# 产物文件名不含空格：GitHub Release 会把资源名里的空格替换成点
+# （"DeepSeek Harness.dmg" → "DeepSeek.Harness.dmg"），那样 SHA256SUMS 就对不上。
+DMG="$ROOT/dist/DeepSeek-Harness-macos-arm64.dmg"
 IDENTIFIER="com.deepseek-harness.desktop"
 # Single source of truth for the app version: tauri.conf.json (also read by the
 # cargo build). APP_VERSION overrides it for one-off builds.

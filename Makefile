@@ -31,7 +31,7 @@ bundle: build ## 打包 .app 与 .dmg（ad-hoc 签名）
 
 zip: bundle ## 生成 .app 压缩包与 SHA256SUMS
 	@cd "$(DIST)" && ditto -c -k --sequesterRsrc --keepParent "$(APP).app" "DeepSeek-Harness-macos-arm64.zip"
-	@cd "$(DIST)" && shasum -a 256 "$(APP).dmg" "DeepSeek-Harness-macos-arm64.zip" > SHA256SUMS
+	@cd "$(DIST)" && shasum -a 256 "DeepSeek-Harness-macos-arm64.dmg" "DeepSeek-Harness-macos-arm64.zip" > SHA256SUMS
 	@ls -lh "$(DIST)"
 
 checksums: zip ## zip 的别名（生成全部产物）

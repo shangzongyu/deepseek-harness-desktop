@@ -11,8 +11,11 @@
 
 | 文件 | 说明 |
 |---|---|
-| `DeepSeek Harness.dmg` | 安装镜像：挂载后把 App 拖进 Applications |
+| `DeepSeek-Harness-macos-arm64.dmg` | 安装镜像：挂载后把 App 拖进 Applications |
 | `DeepSeek-Harness-macos-arm64.zip` | App 压缩包：解压即用 |
+
+产物文件名不含空格——GitHub Release 会把资源名里的空格替换成点，那样
+`SHA256SUMS` 里的名字就和下载下来的文件对不上了。
 
 > 未做 Apple 公证（无需开发者账号）。本机构建的版本可直接双击打开；
 > 从网上下载的副本若被 Gatekeeper 拦截，右键 → 打开即可（或
